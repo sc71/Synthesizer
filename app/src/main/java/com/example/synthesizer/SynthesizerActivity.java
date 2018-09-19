@@ -26,6 +26,7 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
     public static final float DEFAULT_RATE = 1.0f;
     public static final int WHOLE_NOTE = 500; //in milliseconds
     private boolean octave;
+    private Note[] escale, scale, twinklestar1, twinklestar2, twinklestar, river1, river2, river;
 
 
     @Override
@@ -35,6 +36,30 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
         wireWidgets();
         setListeners();
         initializeSoundPool();
+        createNoteArrays();
+    }
+//    twinkleTwinkle.add(new Note(noteA));
+//        twinkleTwinkle.add(new Note(noteA));
+//        twinkleTwinkle.add(new Note(noteE2));
+//        twinkleTwinkle.add(new Note(noteE2));
+//        twinkleTwinkle.add(new Note(noteFs2));
+//        twinkleTwinkle.add(new Note(noteFs2));
+//        twinkleTwinkle.add(new Note(1000, noteE2));
+//        twinkleTwinkle.add(new Note(noteD));
+//        twinkleTwinkle.add(new Note(noteD));
+//        twinkleTwinkle.add(new Note(noteCs));
+//        twinkleTwinkle.add(new Note(noteCs));
+//        twinkleTwinkle.add(new Note(noteB));
+//        twinkleTwinkle.add(new Note(noteB));
+//        twinkleTwinkle.add(new Note(1000, noteA));
+    private void createNoteArrays() {
+        escale = new Note[] {new Note(noteE), new Note(noteFs), new Note(noteG), new Note(noteA2),
+                new Note(noteB2), new Note(noteCs2), new Note(noteD2), new Note(noteE2)};
+        scale = new Note[] {new Note(noteA), new Note(noteBb), new Note(noteB), new Note(noteC),
+                new Note(noteCs), new Note(noteD), new Note(noteDs), new Note(noteE), new Note(noteF),
+                new Note(noteFs), new Note(noteG), new Note(noteGs), new Note(noteA2)};
+        twinklestar1 = new Note[] {new Note(noteA),new Note(noteA), new Note(noteE2),
+                new Note(noteE2), new Note(noteFs2), new Note(noteFs2)};
     }
 
 
@@ -58,7 +83,6 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
         buttonRepeat = findViewById(R.id.button_synth_num_pick);
         buttonTwinkle = findViewById(R.id.button_synth_twinkle);
         buttonPlaySong = findViewById(R.id.button_synth_river);
-
     }
 
     private void initializeSoundPool() {
@@ -124,7 +148,6 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
     }
 
     private class PlaySongBackground extends AsyncTask<Note, Void, Void>{
-
         @Override
         protected Void doInBackground(Note... notes) {
             Song s = new Song();
@@ -139,7 +162,7 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.button_main_scale:
-                playScale();
+                new PlaySongBackground().execute(scale);
                 break;
             case R.id.button_synth_a:
                 playNote(highOrLow(noteA, noteA2));
@@ -181,7 +204,7 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
                 playNote(highOrLow(noteA2, noteA3));
                 break;
             case R.id.button_synth_scale_e:
-                playScaleE();
+                new PlaySongBackground().execute(escale);
                 break;
             case R.id.button_synth_num_pick:
                 Intent myIntent = new Intent(SynthesizerActivity.this, PickNoteRepeat.class);
@@ -208,44 +231,11 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void playScale(){
-        Song scale = new Song();
-        scale.add(new Note(noteA));
-        scale.add(new Note(noteBb));
-        scale.add(new Note(noteB));
-        scale.add(new Note(noteC));
-        scale.add(new Note(noteCs));
-        scale.add(new Note(noteD));
-        scale.add(new Note(noteDs));
-        scale.add(new Note(noteE));
-        scale.add(new Note(noteF));
-        scale.add(new Note(noteFs));
-        scale.add(new Note(noteG));
-        scale.add(new Note(noteGs));
-        scale.add(new Note(noteA2));
-        playSong(scale);
-    }
-
     private void playSong(Song scale) {
         for(Note note : scale.getNotes()){
             playNote(note);
             delay(note.getDelay());
         }
-    }
-
-    //E, F Sharp, G, A, B, C Sharp, D, E
-
-    private void playScaleE() {
-        Song eScale = new Song();
-        eScale.add(new Note(noteE));
-        eScale.add(new Note(noteFs));
-        eScale.add(new Note(noteG));
-        eScale.add(new Note(noteA2));
-        eScale.add(new Note(noteB2));
-        eScale.add(new Note(noteCs2));
-        eScale.add(new Note(noteD2));
-        eScale.add(new Note(noteE2));
-        playSong(eScale);
     }
 
     private void playStar1(){
