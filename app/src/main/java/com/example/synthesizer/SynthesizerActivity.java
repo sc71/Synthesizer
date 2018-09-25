@@ -3,7 +3,8 @@ package com.example.synthesizer;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,49 +20,82 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
     private SoundPool soundPool;
     private int noteA, noteBb, noteB, noteC, noteCs, noteD, noteDs, noteE, noteF, noteFs, noteG, noteGs,
             noteA2, noteBb2, noteB2, noteC2, noteCs2, noteD2, noteDs2, noteE2, noteF2, noteFs2, noteG2,
-            noteGs2, noteA3, noteB3;
+            noteGs2, noteA3, noteB3, noteA0, noteBb0, noteB0, noteC0, noteCs0, noteD0, noteDs0, noteE0, noteF0, noteFs0, noteG0, noteGs0;
     private Switch switchOctave;
     public static final float DEFAULT_VOLUME = 1.0f;
     public static final int DEFAULT_PRIORITY = 1;
     public static final float DEFAULT_RATE = 1.0f;
     public static final int WHOLE_NOTE = 500; //in milliseconds
     private boolean octave;
-    private Note[] escale, scale, twinklestar1, twinklestar2, twinklestar, river1, river2, river;
+    private Note[] escale, scale, twinklestar, riverRight, riverLeft;
+    private Handler handler = new Handler();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_synthesizer);
-        wireWidgets();
-        setListeners();
         initializeSoundPool();
         createNoteArrays();
+        wireWidgets();
+        setListeners();
     }
-//    twinkleTwinkle.add(new Note(noteA));
-//        twinkleTwinkle.add(new Note(noteA));
-//        twinkleTwinkle.add(new Note(noteE2));
-//        twinkleTwinkle.add(new Note(noteE2));
-//        twinkleTwinkle.add(new Note(noteFs2));
-//        twinkleTwinkle.add(new Note(noteFs2));
-//        twinkleTwinkle.add(new Note(1000, noteE2));
-//        twinkleTwinkle.add(new Note(noteD));
-//        twinkleTwinkle.add(new Note(noteD));
-//        twinkleTwinkle.add(new Note(noteCs));
-//        twinkleTwinkle.add(new Note(noteCs));
-//        twinkleTwinkle.add(new Note(noteB));
-//        twinkleTwinkle.add(new Note(noteB));
-//        twinkleTwinkle.add(new Note(1000, noteA));
+
     private void createNoteArrays() {
         escale = new Note[] {new Note(noteE), new Note(noteFs), new Note(noteG), new Note(noteA2),
                 new Note(noteB2), new Note(noteCs2), new Note(noteD2), new Note(noteE2)};
         scale = new Note[] {new Note(noteA), new Note(noteBb), new Note(noteB), new Note(noteC),
                 new Note(noteCs), new Note(noteD), new Note(noteDs), new Note(noteE), new Note(noteF),
                 new Note(noteFs), new Note(noteG), new Note(noteGs), new Note(noteA2)};
-        twinklestar1 = new Note[] {new Note(noteA),new Note(noteA), new Note(noteE2),
-                new Note(noteE2), new Note(noteFs2), new Note(noteFs2)};
+        twinklestar = new Note[] {new Note(noteA),new Note(noteA), new Note(noteE2),
+                new Note(noteE2), new Note(noteFs2), new Note(noteFs2), new Note(1000, noteE2),
+                new Note(noteD), new Note(noteD), new Note(noteCs), new Note(noteCs), new Note(noteB),
+                new Note(noteB), new Note(1000, noteA), new Note(noteE2), new Note(noteE2),
+                new Note(noteD), new Note(noteD), new Note(noteCs), new Note(noteCs),
+                new Note(1000, noteB), new Note(noteE2), new Note(noteE2), new Note(noteD),
+                new Note(noteD), new Note(noteCs), new Note(noteCs), new Note(1000, noteB),
+                new Note(noteA),new Note(noteA), new Note(noteE2), new Note(noteE2), new Note(noteFs2),
+                new Note(noteFs2), new Note(1000, noteE2), new Note(noteD), new Note(noteD),
+                new Note(noteCs), new Note(noteCs), new Note(noteB), new Note(noteB), new Note(1000, noteA)};
+        riverRight = new Note[] {new Note(400,noteA3), new Note(400,noteGs2),
+                new Note(400,noteA3), new Note(400,noteGs2), new Note(400,noteA3),
+                new Note(400, noteE2), new Note(400,noteA3), new Note(2600,noteD2),
+                new Note(200,noteA2), new Note(200,noteCs2), new Note(400,noteA3),
+                new Note(400,noteGs2), new Note(400,noteA3), new Note(400,noteGs2),
+                new Note(400,noteA3), new Note(400,noteE2), new Note(400,noteA3),
+                new Note(2600,noteD2), new Note(200,noteA2), new Note(200,noteCs2),
+                new Note(400,noteA3), new Note(200,noteGs2), new Note(200,noteA3),
+                new Note(200,noteA2), new Note(200,noteGs2), new Note(400,noteA3),
+                new Note(200, noteA2), new Note(200,noteE2), new Note(400,noteA3),
+                new Note(200,noteA2), new Note(200,noteD2), new Note(200,noteA),
+                new Note(50, noteB2), new Note(350, noteCs2), new Note(400, noteD2),
+                new Note(0, noteE2), new Note(400, noteA), new Note(400, noteCs2),
+                new Note(0, noteGs), new Note(1200, noteB), new Note(200, noteA2),
+                new Note(200, noteGs), new Note(1000, noteA2), new Note(200, noteE),
+                new Note(200, noteA2), new Note(200, noteB2), new Note(1200, noteCs2),
+                new Note(200, noteCs2), new Note(200, noteD2), new Note(1200, noteE2),
+                new Note(200, noteD2), new Note(200, noteCs2), new Note(1400, noteB2),
+                new Note(100, noteA2), new Note(100, noteCs2), new Note(400, noteA3),
+                new Note(200, noteGs2), new Note(400, noteA3), new Note(200, noteA2),
+                new Note(200, noteGs2), new Note(400, noteA3), new Note(200, noteA2),
+                new Note(200, noteD2), new Note(200, noteA2)};
+        riverLeft = new Note[] {new Note(400,noteFs0), new Note(400,noteCs),
+                new Note(800,noteFs), new Note(400,noteD0), new Note(400,noteA),
+                new Note(3300, noteE), new Note(400,noteFs0), new Note(400,noteCs),
+                new Note(800,noteFs), new Note(400,noteD0), new Note(400,noteA),
+                new Note(3300, noteE), new Note(400,noteFs0), new Note(400,noteCs),
+                new Note(800,noteFs), new Note(400,noteD0),  new Note(400,noteA),
+                new Note(400, noteE), new Note(400,noteD), new Note(400, noteA0),
+                new Note(400, noteE0), new Note(800, noteCs), new Note(400, noteE0),
+                new Note(400, noteB), new Note(800, noteE), new Note(400, noteFs0),
+                new Note(400, noteCs), new Note(800, noteFs), new Note(400, noteD0),
+                new Note(400, noteA), new Note(800, noteE), new Note(400, noteA0),
+                new Note(400, noteE0), new Note(800, noteCs), new Note(400, noteE0),
+                new Note(400, noteB), new Note(800, noteGs), new Note(400, noteFs0),
+                new Note(400, noteCs), new Note(800, noteFs), //new Note(400, noteD0),
+                //new Note(400, noteA), new Note(400, noteE), new Note(400, noteD0)
+        };
     }
-
 
     private void wireWidgets() {
         buttonA = findViewById(R.id.button_synth_a);
@@ -113,6 +147,18 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
         noteGs2 = soundPool.load(this, R.raw.scalehighgs, 1);
         noteA3 = soundPool.load(this, R.raw.scalehighesta, 1);
         noteB3= soundPool.load(this, R.raw.scalehighb, 1);
+        noteA0= soundPool.load(this, R.raw.scalelowesta, 1);
+        noteBb0= soundPool.load(this, R.raw.scalelowesta, 1);
+        noteB0 = soundPool.load(this, R.raw.scalelowestb, 1);
+        noteC0 = soundPool.load(this, R.raw.scalelowestc, 1);
+        noteCs0 = soundPool.load(this, R.raw.scalelowestcs, 1);
+        noteD0 = soundPool.load(this, R.raw.scalelowestd, 1);
+        noteDs0 = soundPool.load(this, R.raw.scalelowestds, 1);
+        noteE0 = soundPool.load(this, R.raw.scaleloweste, 1);
+        noteF0 = soundPool.load(this, R.raw.scalelowestf, 1);
+        noteFs0 = soundPool.load(this, R.raw.scalelowestfs, 1);
+        noteG0 = soundPool.load(this, R.raw.scalelowestg, 1);
+        noteGs0 = soundPool.load(this, R.raw.scalelowestgs, 1);
     }
 
     private void setListeners() {
@@ -147,22 +193,34 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    private class PlaySongBackground extends AsyncTask<Note, Void, Void>{
-        @Override
-        protected Void doInBackground(Note... notes) {
-            Song s = new Song();
-            for(Note n : notes){
-                s.add(n);
+
+    private void scheduleSongs(long startDelay, Note[]... songs) {
+        long base = SystemClock.uptimeMillis() + startDelay;
+        for (Note[] song: songs) {
+            long delay = 0;
+            for (final Note note: song) {
+                handler.postAtTime(new Runnable() {
+                    @Override
+                    public void run() {
+                        playNote(note);
+                    }
+                }, base + delay);
+                delay+=note.getDelay();
             }
-            playSong(s);
-            return null;
         }
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacksAndMessages(null);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.button_main_scale:
-                new PlaySongBackground().execute(scale);
+                scheduleSongs(100, scale);
                 break;
             case R.id.button_synth_a:
                 playNote(highOrLow(noteA, noteA2));
@@ -204,17 +262,17 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
                 playNote(highOrLow(noteA2, noteA3));
                 break;
             case R.id.button_synth_scale_e:
-                new PlaySongBackground().execute(escale);
+                scheduleSongs(100, escale);
                 break;
             case R.id.button_synth_num_pick:
                 Intent myIntent = new Intent(SynthesizerActivity.this, PickNoteRepeat.class);
                 SynthesizerActivity.this.startActivity(myIntent);
                 break;
             case R.id.button_synth_twinkle:
-                playStar();
+                scheduleSongs(100, twinklestar);
                 break;
             case R.id.button_synth_river:
-                playRiverFlows();
+                scheduleSongs(20, riverLeft, riverRight);
                 break;
         }
 
@@ -231,92 +289,6 @@ public class SynthesizerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void playSong(Song scale) {
-        for(Note note : scale.getNotes()){
-            playNote(note);
-            delay(note.getDelay());
-        }
-    }
-
-    private void playStar1(){
-        Song twinkleTwinkle = new Song();
-        twinkleTwinkle.add(new Note(noteA));
-        twinkleTwinkle.add(new Note(noteA));
-        twinkleTwinkle.add(new Note(noteE2));
-        twinkleTwinkle.add(new Note(noteE2));
-        twinkleTwinkle.add(new Note(noteFs2));
-        twinkleTwinkle.add(new Note(noteFs2));
-        twinkleTwinkle.add(new Note(1000, noteE2));
-        twinkleTwinkle.add(new Note(noteD));
-        twinkleTwinkle.add(new Note(noteD));
-        twinkleTwinkle.add(new Note(noteCs));
-        twinkleTwinkle.add(new Note(noteCs));
-        twinkleTwinkle.add(new Note(noteB));
-        twinkleTwinkle.add(new Note(noteB));
-        twinkleTwinkle.add(new Note(1000, noteA));
-        playSong(twinkleTwinkle);
-    }
-
-    private void playStar2(){
-        Song twinkleTwinkle = new Song();
-        twinkleTwinkle.add(new Note(noteE2));
-        twinkleTwinkle.add(new Note(noteE2));
-        twinkleTwinkle.add(new Note(noteD));
-        twinkleTwinkle.add(new Note(noteD));
-        twinkleTwinkle.add(new Note(noteCs));
-        twinkleTwinkle.add(new Note(noteCs));
-        twinkleTwinkle.add(new Note(1000, noteB));
-        playSong(twinkleTwinkle);
-    }
-    private void playStar(){
-        playStar1();
-        playStar2();
-        playStar2();
-        playStar1();
-    }
-    private void delay(int duration){
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void playRiverRight(){
-        Song river = new Song();
-        river.add(new Note(400,noteA3));
-        river.add(new Note(400,noteGs2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(400,noteGs2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(400,noteE2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(2600,noteD2));
-        river.add(new Note(200,noteA2));
-        river.add(new Note(200,noteCs2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(400,noteGs2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(400,noteGs2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(400,noteE2));
-        river.add(new Note(400,noteA3));
-        river.add(new Note(2600,noteD2));
-        river.add(new Note(200,noteA2));
-        river.add(new Note(200,noteCs2));
-        //
-        river.add(new Note(400,noteA3));
-        river.add(new Note(200,noteGs2));
-        river.add(new Note(200,noteA3));
-        river.add(new Note(200,noteA2));
-        river.add(new Note(200,noteGs2));
-
-        playSong(river);
-    }
-
-    private void playRiverFlows(){
-        playRiverRight();
-    }
     private void playNote(int note, int loop) {
         soundPool.play(note, DEFAULT_VOLUME, DEFAULT_VOLUME, DEFAULT_PRIORITY, loop, DEFAULT_RATE);
     }
